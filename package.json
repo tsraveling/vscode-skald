@@ -54,7 +54,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "package": "npx @vscode/vsce package --no-dependencies -o vscode-skald.vsix",
+    "package": "npx @vscode/vsce package -o vscode-skald.vsix",
     "deploy": "npm run compile && npm run package && code --install-extension vscode-skald.vsix"
   },
   "dependencies": {
