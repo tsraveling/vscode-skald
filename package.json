@@ -1,0 +1,68 @@
+{
+  "name": "vscode-skald",
+  "displayName": "Skald",
+  "description": "Language support for the Skald narrative scripting language",
+  "version": "0.1.0",
+  "publisher": "tsraveling",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tsraveling/vscode-skald"
+  },
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:skald"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "skald",
+        "aliases": ["Skald", "skald"],
+        "extensions": [".ska"],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/skald-light.png",
+          "dark": "./icons/skald-dark.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "skald",
+        "scopeName": "source.skald",
+        "path": "./syntaxes/skald.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "title": "Skald",
+      "properties": {
+        "skald.lsp.path": {
+          "type": "string",
+          "default": "skald_lsp",
+          "description": "Path to the skald_lsp binary. Defaults to 'skald_lsp' (looked up on $PATH)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "npx @vscode/vsce package -o vscode-skald.vsix",
+    "deploy": "npm run compile && npm run package && code --install-extension vscode-skald.vsix"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.75.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  }
+}
