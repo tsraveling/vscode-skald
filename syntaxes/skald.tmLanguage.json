@@ -1,0 +1,346 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Skald",
+  "scopeName": "source.skald",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#variable-declaration" },
+    { "include": "#testbed" },
+    { "include": "#block" }
+  ],
+  "repository": {
+    "comment": {
+      "match": "--.*$",
+      "name": "comment.line.double-dash.skald"
+    },
+
+    "inline-comment": {
+      "match": "\\{--[^}]*\\}",
+      "name": "comment.block.inline.skald"
+    },
+
+    "variable-declaration": {
+      "match": "^([~<])\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*(=)\\s*(.+?)\\s*(?=--|$)",
+      "captures": {
+        "1": { "name": "keyword.operator.declaration.skald" },
+        "2": { "name": "variable.other.skald" },
+        "3": { "name": "keyword.operator.assignment.skald" },
+        "4": { "patterns": [{ "include": "#rvalue" }] }
+      }
+    },
+
+    "testbed": {
+      "begin": "^(@testbed)\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+      "end": "^(@end)",
+      "beginCaptures": {
+        "1": { "name": "keyword.control.testbed.skald" },
+        "2": { "name": "entity.name.type.testbed.skald" }
+      },
+      "endCaptures": {
+        "1": { "name": "keyword.control.testbed.skald" }
+      },
+      "patterns": [
+        { "include": "#comment" },
+        { "include": "#testbed-assignment" }
+      ]
+    },
+
+    "testbed-assignment": {
+      "match": "^\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*(=)\\s*(.+?)\\s*(?=--|$)",
+      "captures": {
+        "1": { "name": "variable.other.skald" },
+        "2": { "name": "keyword.operator.assignment.skald" },
+        "3": { "patterns": [{ "include": "#simple-value" }] }
+      }
+    },
+
+    "block": {
+      "begin": "^(#)([a-zA-Z_][a-zA-Z0-9_]*)",
+      "end": "(?=^#[a-zA-Z_])",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.tag.skald" },
+        "2": { "name": "entity.name.tag.block.skald" }
+      },
+      "patterns": [
+        { "include": "#comment" },
+        { "include": "#logic-beat" },
+        { "include": "#choice" },
+        { "include": "#indented-operation" },
+        { "include": "#beat" }
+      ]
+    },
+
+    "logic-beat": {
+      "begin": "^(\\*)\\s*",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "keyword.operator.logic-beat.skald" }
+      },
+      "patterns": [
+        { "include": "#else-keyword" },
+        { "include": "#conditional" },
+        { "include": "#operation" },
+        { "include": "#comment" }
+      ]
+    },
+
+    "beat": {
+      "begin": "^(?=[^\\s#>*~@<]|\\(?\\?)",
+      "end": "$",
+      "patterns": [
+        { "include": "#conditional" },
+        { "include": "#attribution" },
+        { "include": "#text-content" }
+      ]
+    },
+
+    "choice": {
+      "begin": "^(>)\\s*",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.choice.skald" }
+      },
+      "patterns": [
+        { "include": "#conditional" },
+        { "include": "#move-inline" },
+        { "include": "#text-content" }
+      ]
+    },
+
+    "attribution": {
+      "match": "([a-zA-Z_][a-zA-Z0-9_]*)(:)(?=\\s)",
+      "captures": {
+        "1": { "name": "entity.name.tag.attribution.skald" },
+        "2": { "name": "punctuation.separator.attribution.skald" }
+      }
+    },
+
+    "text-content": {
+      "patterns": [
+        { "include": "#inline-comment" },
+        { "include": "#insertion" }
+      ]
+    },
+
+    "insertion": {
+      "begin": "\\{(?!--)",
+      "end": "\\}",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.insertion.begin.skald" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.insertion.end.skald" }
+      },
+      "name": "meta.insertion.skald",
+      "patterns": [
+        { "include": "#switch-ternary" },
+        { "include": "#ternary" },
+        { "include": "#rvalue" }
+      ]
+    },
+
+    "ternary": {
+      "match": "([a-zA-Z_][a-zA-Z0-9_]*)\\s*(\\?)\\s*(.+?)\\s*(:)\\s*(.+?)\\s*(?=\\})",
+      "captures": {
+        "1": { "name": "variable.other.skald" },
+        "2": { "name": "keyword.operator.ternary.skald" },
+        "3": { "patterns": [{ "include": "#rvalue" }] },
+        "4": { "name": "keyword.operator.ternary.skald" },
+        "5": { "patterns": [{ "include": "#rvalue" }] }
+      }
+    },
+
+    "switch-ternary": {
+      "begin": "([a-zA-Z_][a-zA-Z0-9_]*)\\s*(\\?)\\s*(\\[)",
+      "end": "(\\])",
+      "beginCaptures": {
+        "1": { "name": "variable.other.skald" },
+        "2": { "name": "keyword.operator.ternary.skald" },
+        "3": { "name": "punctuation.bracket.open.skald" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.bracket.close.skald" }
+      },
+      "patterns": [
+        { "include": "#switch-case" }
+      ]
+    },
+
+    "switch-case": {
+      "match": "\\s*(.+?)\\s*(:)\\s*(.+?)\\s*(?=[,\\]])",
+      "captures": {
+        "1": { "patterns": [{ "include": "#simple-value" }] },
+        "2": { "name": "punctuation.separator.case.skald" },
+        "3": { "patterns": [{ "include": "#rvalue" }] }
+      }
+    },
+
+    "conditional": {
+      "begin": "(\\(\\?)",
+      "end": "(\\))",
+      "beginCaptures": {
+        "1": { "name": "keyword.control.conditional.begin.skald" }
+      },
+      "endCaptures": {
+        "1": { "name": "keyword.control.conditional.end.skald" }
+      },
+      "name": "meta.conditional.skald",
+      "patterns": [
+        { "include": "#conditional-content" }
+      ]
+    },
+
+    "conditional-content": {
+      "patterns": [
+        {
+          "match": "\\b(and|or)\\b",
+          "name": "keyword.operator.logical.skald"
+        },
+        {
+          "match": "(!)[a-zA-Z_:]",
+          "captures": {
+            "1": { "name": "keyword.operator.not.skald" }
+          }
+        },
+        {
+          "match": "(!=|>=|<=|=|>|<)",
+          "name": "keyword.operator.comparison.skald"
+        },
+        { "include": "#method-call" },
+        { "include": "#simple-value" },
+        {
+          "match": "[a-zA-Z_][a-zA-Z0-9_]*",
+          "name": "variable.other.skald"
+        },
+        {
+          "begin": "\\(",
+          "end": "\\)",
+          "patterns": [{ "include": "#conditional-content" }]
+        }
+      ]
+    },
+
+    "else-keyword": {
+      "match": "(\\(else\\))",
+      "name": "keyword.control.else.skald"
+    },
+
+    "indented-operation": {
+      "begin": "^([ \\t]+)(?=[->~:GE])",
+      "end": "$",
+      "patterns": [
+        { "include": "#operation" },
+        { "include": "#comment" }
+      ]
+    },
+
+    "operation": {
+      "patterns": [
+        { "include": "#move-op" },
+        { "include": "#go-op" },
+        { "include": "#exit-op" },
+        { "include": "#method-call" },
+        { "include": "#mutation-op" }
+      ]
+    },
+
+    "move-op": {
+      "match": "(->)\\s*([a-zA-Z_][a-zA-Z0-9_]*)",
+      "captures": {
+        "1": { "name": "keyword.operator.move.skald" },
+        "2": { "name": "entity.name.tag.block.skald" }
+      }
+    },
+
+    "move-inline": {
+      "match": "(->)\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*$",
+      "captures": {
+        "1": { "name": "keyword.operator.move.skald" },
+        "2": { "name": "entity.name.tag.block.skald" }
+      }
+    },
+
+    "go-op": {
+      "match": "(GO)\\s+([a-zA-Z0-9_/]+\\.ska)(?:\\s*(->)\\s*([a-zA-Z_][a-zA-Z0-9_]*))?",
+      "captures": {
+        "1": { "name": "keyword.control.go.skald" },
+        "2": { "name": "string.other.path.skald" },
+        "3": { "name": "keyword.operator.move.skald" },
+        "4": { "name": "entity.name.tag.block.skald" }
+      }
+    },
+
+    "exit-op": {
+      "match": "(EXIT)(?:\\s+(.+?))?\\s*(?=--|$)",
+      "captures": {
+        "1": { "name": "keyword.control.exit.skald" },
+        "2": { "patterns": [{ "include": "#rvalue" }] }
+      }
+    },
+
+    "method-call": {
+      "match": "(:)([a-zA-Z_][a-zA-Z0-9_]*)(\\()([^)]*)(\\))",
+      "captures": {
+        "1": { "name": "punctuation.definition.method.skald" },
+        "2": { "name": "entity.name.function.skald" },
+        "3": { "name": "punctuation.bracket.open.skald" },
+        "4": { "patterns": [{ "include": "#method-args" }] },
+        "5": { "name": "punctuation.bracket.close.skald" }
+      }
+    },
+
+    "method-args": {
+      "patterns": [
+        {
+          "match": ",",
+          "name": "punctuation.separator.comma.skald"
+        },
+        { "include": "#rvalue" }
+      ]
+    },
+
+    "mutation-op": {
+      "match": "(~)\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*(=!|\\+=|-=|=)\\s*(.+?)?\\s*(?=--|$)",
+      "captures": {
+        "1": { "name": "keyword.operator.mutation.skald" },
+        "2": { "name": "variable.other.skald" },
+        "3": { "name": "keyword.operator.assignment.skald" },
+        "4": { "patterns": [{ "include": "#rvalue" }] }
+      }
+    },
+
+    "rvalue": {
+      "patterns": [
+        { "include": "#method-call" },
+        { "include": "#simple-value" },
+        {
+          "match": "[a-zA-Z_][a-zA-Z0-9_]*",
+          "name": "variable.other.skald"
+        }
+      ]
+    },
+
+    "simple-value": {
+      "patterns": [
+        { "include": "#string" },
+        { "include": "#number" },
+        { "include": "#boolean" }
+      ]
+    },
+
+    "string": {
+      "match": "\"(?:[^\"\\\\]|\\\\.)*\"",
+      "name": "string.quoted.double.skald"
+    },
+
+    "number": {
+      "match": "\\b\\d+(\\.\\d+)?\\b",
+      "name": "constant.numeric.skald"
+    },
+
+    "boolean": {
+      "match": "\\b(true|false)\\b",
+      "name": "constant.language.boolean.skald"
+    }
+  }
+}
